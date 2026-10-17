@@ -1,69 +1,224 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import React, { useState, useMemo, useEffect } from "react";
+import styles from "./page.module.css";
+import Header from "@/components/Header";
+import FilterBar from "@/components/FilterBar";
+import ZooCard from "@/components/ZooCard";
+import KakaoMap from "@/components/KakaoMap";
+import ZooDetailModal from "@/components/ZooDetailModal";
+import ApiKeyGuideModal from "@/components/ApiKeyGuideModal";
+import { ZOOS_DATA } from "@/data/zoos";
+import { Zoo, Region, ZooCategory } from "@/types/zoo";
+import { SearchX } from "lucide-react";
+
+export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState<Region>("전체");
+  const [selectedCategory, setSelectedCategory] = useState<ZooCategory>("all");
+  const [sortBy, setSortBy] = useState<"rating" | "reviews" | "name">("rating");
+
+  const [selectedZoo, setSelectedZoo] = useState<Zoo | null>(null);
+  const [detailZoo, setDetailZoo] = useState<Zoo | null>(null);
+  const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
+
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+  // Check Kakao API key existence
+  const kakaoApiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
+  const hasApiKey = Boolean(
+    kakaoApiKey &&
+      kakaoApiKey.trim().length > 10 &&
+      !kakaoApiKey.includes("your_kakao")
+  );
+
+  // Load favorites from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("zoo_favorites");
+      if (stored) {
+        setFavorites(JSON.parse(stored));
+      }
+    } catch {
+      // Fallback for private mode or storage restrictions
+    }
+  }, []);
+
+  const toggleFavorite = (id: string) => {
+    setFavorites((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id];
+      try {
+        localStorage.setItem("zoo_favorites", JSON.stringify(next));
+      } catch {
+        // Ignored
+      }
+      return next;
+    });
+  };
+
+  // Filter & Sort Logic
+  const filteredZoos = useMemo(() => {
+    return ZOOS_DATA.filter((zoo) => {
+      // Region filter
+      if (selectedRegion !== "전체" && zoo.region !== selectedRegion) {
+        return false;
+      }
+
+      // Category filter
+      if (selectedCategory !== "all" && zoo.category !== selectedCategory) {
+        return false;
+      }
+
+      // Favorites filter
+      if (showFavoritesOnly && !favorites.includes(zoo.id)) {
+        return false;
+      }
+
+      // Search query filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        const matchesName = zoo.name.toLowerCase().includes(query);
+        const matchesAddress = zoo.address.toLowerCase().includes(query);
+        const matchesAnimals = zoo.keyAnimals.some((a) =>
+          a.toLowerCase().includes(query)
+        );
+        const matchesTags = zoo.tags.some((t) =>
+          t.toLowerCase().includes(query)
+        );
+        const matchesCategory = zoo.categoryLabel.toLowerCase().includes(query);
+
+        if (
+          !matchesName &&
+          !matchesAddress &&
+          !matchesAnimals &&
+          !matchesTags &&
+          !matchesCategory
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    }).sort((a, b) => {
+      if (sortBy === "rating") return b.rating - a.rating;
+      if (sortBy === "reviews") return b.reviewCount - a.reviewCount;
+      if (sortBy === "name") return a.name.localeCompare(b.name, "ko");
+      return 0;
+    });
+  }, [
+    selectedRegion,
+    selectedCategory,
+    showFavoritesOnly,
+    favorites,
+    searchQuery,
+    sortBy,
+  ]);
+
+  // When selectedZoo changes from map, auto scroll to that card in list
+  const handleSelectZoo = (zoo: Zoo | null) => {
+    setSelectedZoo(zoo);
+    if (zoo) {
+      const cardEl = document.getElementById(`zoo-card-${zoo.id}`);
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  };
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setSelectedRegion("전체");
+    setSelectedCategory("all");
+    setShowFavoritesOnly(false);
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className={styles.container}>
+      {/* Upper Navigation Header */}
+      <Header
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        totalCount={ZOOS_DATA.length}
+        filteredCount={filteredZoos.length}
+        showFavoritesOnly={showFavoritesOnly}
+        onToggleFavorites={() => setShowFavoritesOnly(!showFavoritesOnly)}
+        favoritesCount={favorites.length}
+        onOpenGuideModal={() => setIsGuideModalOpen(true)}
+        hasApiKey={hasApiKey}
+      />
+
+      <div className={styles.mainLayout}>
+        {/* Left Side: Filter Bar + Zoo Cards Scroll List */}
+        <aside className={styles.sidebar}>
+          <FilterBar
+            selectedRegion={selectedRegion}
+            onSelectRegion={setSelectedRegion}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            sortBy={sortBy}
+            onSelectSortBy={setSortBy}
+          />
+
+          <div className={styles.cardsScrollArea}>
+            {filteredZoos.length > 0 ? (
+              filteredZoos.map((zoo) => (
+                <ZooCard
+                  key={zoo.id}
+                  zoo={zoo}
+                  isSelected={selectedZoo?.id === zoo.id}
+                  isFavorite={favorites.includes(zoo.id)}
+                  onSelect={handleSelectZoo}
+                  onOpenDetail={setDetailZoo}
+                  onToggleFavorite={toggleFavorite}
+                />
+              ))
+            ) : (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>
+                  <SearchX size={28} />
+                </div>
+                <h4 className={styles.emptyTitle}>검색 조건과 일치하는 동물원이 없습니다</h4>
+                <p className={styles.emptyDesc}>
+                  선택하신 지역 또는 필터 조건을 변경하거나 검색어를 초기화해 보세요.
+                </p>
+                <button
+                  className={styles.resetFiltersBtn}
+                  onClick={handleResetFilters}
+                >
+                  필터 초기화
+                </button>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* Right Side: Interactive Kakao Map */}
+        <section className={styles.mapSection}>
+          <KakaoMap
+            zoos={filteredZoos}
+            selectedZoo={selectedZoo}
+            onSelectZoo={handleSelectZoo}
+            onOpenDetail={setDetailZoo}
+            onOpenGuideModal={() => setIsGuideModalOpen(true)}
+          />
+        </section>
+      </div>
+
+      {/* Modal: Full Zoo Details */}
+      {detailZoo && (
+        <ZooDetailModal zoo={detailZoo} onClose={() => setDetailZoo(null)} />
+      )}
+
+      {/* Modal: Kakao API Key & Vercel Setup Guide */}
+      {isGuideModalOpen && (
+        <ApiKeyGuideModal
+          hasApiKey={hasApiKey}
+          onClose={() => setIsGuideModalOpen(false)}
         />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
     </div>
   );
 }
