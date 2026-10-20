@@ -150,19 +150,22 @@ export default function KakaoMap({
     });
   }, [zoos, selectedZoo, onSelectZoo]);
 
-  // 4. Pan to selected zoo
+  // 4. Pan & Close-up Zoom to selected zoo
   useEffect(() => {
-    if (!mapInstanceRef.current || !window.kakao?.maps || !selectedZoo) return;
+    if (!selectedZoo) return;
 
-    const map = mapInstanceRef.current;
-    const targetPos = new window.kakao.maps.LatLng(
-      selectedZoo.lat,
-      selectedZoo.lng
-    );
+    if (mapInstanceRef.current && window.kakao?.maps) {
+      const map = mapInstanceRef.current;
+      const targetPos = new window.kakao.maps.LatLng(
+        selectedZoo.lat,
+        selectedZoo.lng
+      );
 
-    map.panTo(targetPos);
-    if (map.getLevel() > 6) {
-      map.setLevel(5, { animate: true });
+      // Close-up to Level 4 (~250m scale, clear facility view) and pan smoothly
+      if (map.getLevel() > 4) {
+        map.setLevel(4, { animate: false });
+      }
+      map.panTo(targetPos);
     }
   }, [selectedZoo]);
 
@@ -190,7 +193,7 @@ export default function KakaoMap({
   }, [zoos]);
 
   return (
-    <div className={styles.mapWrapper}>
+    <div className={styles.mapWrapper} id="map-section-wrapper">
       {/* Real Kakao Map Canvas */}
       {hasValidKey && !loadError ? (
         <div ref={containerRef} className={styles.mapContainer} id="kakao-map" />
@@ -202,14 +205,30 @@ export default function KakaoMap({
             <div className={styles.fallbackIcon}>
               <Compass size={28} />
             </div>
-            <h3 className={styles.fallbackTitle}>카카오맵 API 연결 대기 중</h3>
+            <h3 className={styles.fallbackTitle}>
+              {loadError
+                ? "카카오맵 도메인 등록 필요"
+                : "카카오맵 API 연결 대기 중"}
+            </h3>
             <p className={styles.fallbackDesc}>
-              카카오 개발자 센터에서 <strong>JavaScript 키</strong>를 발급받아{" "}
-              <code>.env.local</code>에 등록하면 실시간 카카오 지도 타일과 위성뷰가 활성화됩니다.
+              {loadError ? (
+                <>
+                  카카오 개발자 센터에서 <strong>Web 사이트 도메인</strong>에{" "}
+                  <code>https://zooanimal.vercel.app</code>을 등록해야 지도가
+                  표시됩니다.
+                </>
+              ) : (
+                <>
+                  카카오 개발자 센터에서 <strong>JavaScript 키</strong>를 발급받아{" "}
+                  <code>.env.local</code> 및 Vercel 환경 변수에 등록하면 실시간 지도가 활성화됩니다.
+                </>
+              )}
             </p>
             <button className={styles.setupGuideBtn} onClick={onOpenGuideModal}>
               <Info size={16} />
-              <span>3분 만에 카카오맵 키 등록하기</span>
+              <span>
+                {loadError ? "도메인 등록 가이드 보기" : "3분 만에 카카오맵 키 등록하기"}
+              </span>
             </button>
           </div>
         </div>
@@ -217,10 +236,15 @@ export default function KakaoMap({
 
       {/* Top Banner indicating status */}
       <div className={styles.noticeBanner} onClick={onOpenGuideModal}>
-        <Compass size={14} color="#16a34a" />
+        <Compass
+          size={14}
+          color={loadError ? "#e11d48" : hasValidKey ? "#16a34a" : "#64748b"}
+        />
         <span>
-          {hasValidKey
-            ? "카카오맵 정상 연결됨"
+          {loadError
+            ? "⚠️ 카카오맵 도메인 등록 필요 (클릭)"
+            : hasValidKey
+            ? "✅ 카카오맵 정상 연결됨"
             : "카카오맵 API 키 설정 가이드 보기"}
         </span>
       </div>

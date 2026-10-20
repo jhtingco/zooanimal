@@ -1,24 +1,24 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 16px;
   animation: fadeIn 0.2s ease-out;
 }
 
 .modal {
   background: #ffffff;
   width: 100%;
-  max-width: 680px;
-  max-height: 90vh;
+  max-width: 740px;
+  max-height: 92vh;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -28,7 +28,7 @@
 @keyframes scaleUp {
   from {
     opacity: 0;
-    transform: scale(0.96) translateY(10px);
+    transform: scale(0.97) translateY(8px);
   }
   to {
     opacity: 1;
@@ -39,8 +39,9 @@
 .imageBanner {
   position: relative;
   width: 100%;
-  height: 240px;
+  height: 200px;
   background: var(--slate-900);
+  flex-shrink: 0;
 }
 
 .bannerImg {
@@ -54,17 +55,17 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    transparent 40%,
-    rgba(0, 0, 0, 0.7) 100%
+    rgba(0, 0, 0, 0.25) 0%,
+    transparent 35%,
+    rgba(15, 23, 42, 0.85) 100%
   );
 }
 
 .closeButton {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 5;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -84,7 +85,7 @@
 
 .bannerInfo {
   position: absolute;
-  bottom: 16px;
+  bottom: 14px;
   left: 20px;
   right: 20px;
   color: #ffffff;
@@ -94,6 +95,35 @@
   display: flex;
   gap: 6px;
   margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.tagBadge {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.publicBadge {
+  background: rgba(22, 163, 74, 0.9);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.hubBadge {
+  background: rgba(14, 116, 144, 0.95);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
 }
 
 .modalTitle {
@@ -107,14 +137,305 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+/* Tab Bar */
+.tabBar {
+  display: flex;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0 16px;
+  gap: 8px;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.tabItem {
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--slate-600);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.tabItem:hover {
+  color: var(--slate-900);
+}
+
+.tabItem.activeTab {
+  color: var(--primary-700);
+  border-bottom-color: var(--primary-700);
+  background: #ffffff;
+}
+
+/* Modal Body */
 .scrollBody {
-  padding: 24px;
+  padding: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+  flex: 1;
 }
 
+/* Tab 1: Catalog Stats Bar */
+.catalogStatsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 12px 8px;
+}
+
+.statMetric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statNumber {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.statNumberDanger {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e11d48;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--slate-500);
+}
+
+.statDivider {
+  width: 1px;
+  height: 24px;
+  background: var(--slate-200);
+}
+
+/* Catalog Filter Area */
+.catalogFilterArea {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.animalSearchBox {
+  position: relative;
+  width: 100%;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: var(--slate-400);
+}
+
+.animalSearchInput {
+  width: 100%;
+  padding: 9px 36px 9px 36px;
+  font-size: 13px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.animalSearchInput:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+}
+
+.clearSearchBtn {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: var(--slate-400);
+}
+
+.classChipsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.classFilterChip {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: var(--slate-700);
+  border-radius: var(--radius-full);
+  transition: all 0.15s ease;
+}
+
+.classFilterChip:hover {
+  background: #e2e8f0;
+}
+
+.classFilterChip.selectedClassChip {
+  background: var(--primary-700);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.endangeredToggleLabel {
+  margin-left: auto;
+  font-size: 12px;
+  color: #be123c;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Animals Catalog Grid */
+.animalsCatalogGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.animalItemCard {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.animalItemCard:hover {
+  border-color: var(--primary-400);
+  box-shadow: var(--shadow-sm);
+  background: #fafdfa;
+}
+
+.animalCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.animalNames {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.animalMainTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.animalKoreanName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.keyAnimalBadge {
+  font-size: 11px;
+  background: #fef3c7;
+  color: #b45309;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.animalScientificName {
+  font-size: 12px;
+  color: var(--slate-500);
+  font-style: italic;
+}
+
+.animalClassTag {
+  font-size: 11px;
+  background: var(--slate-100);
+  color: var(--slate-700);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.animalMetaRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.endangeredBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.endangeredGrade1 {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.endangeredGrade2 {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+.heritageGrade {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
+}
+
+.citesGrade {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #d8b4fe;
+}
+
+.zoneTag {
+  font-size: 11px;
+  background: #f1f5f9;
+  color: var(--slate-600);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.animalHighlights {
+  font-size: 13px;
+  color: var(--slate-700);
+  line-height: 1.5;
+}
+
+.noAnimalsFound {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--slate-500);
+  font-size: 13px;
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+}
+
+/* Tab 2: Standard Info Sections */
 .section {
   display: flex;
   flex-direction: column;
@@ -134,22 +455,6 @@
   font-size: 14px;
   color: var(--slate-700);
   line-height: 1.6;
-}
-
-.animalsList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.animalChip {
-  background: var(--primary-50);
-  color: var(--primary-800);
-  border: 1px solid var(--primary-200);
-  padding: 6px 12px;
-  border-radius: var(--radius-full);
-  font-size: 13px;
-  font-weight: 500;
 }
 
 .admissionGrid {
@@ -198,7 +503,6 @@
   align-items: flex-start;
   gap: 12px;
   font-size: 14px;
-  color: var(--slate-700);
 }
 
 .infoIcon {
@@ -209,80 +513,149 @@
 
 .copyAddressBtn {
   font-size: 11px;
+  color: var(--primary-700);
+  background: var(--primary-50);
   padding: 2px 8px;
   border-radius: var(--radius-sm);
-  background: var(--slate-200);
-  color: var(--slate-700);
   margin-left: 8px;
-  transition: all 0.15s ease;
 }
 
 .copyAddressBtn:hover {
   background: var(--primary-100);
-  color: var(--primary-800);
 }
 
-.facilitiesGrid {
+.closedInfo {
+  font-size: 12px;
+  color: var(--slate-500);
+  margin-top: 2px;
+}
+
+.phoneLink {
+  color: var(--primary-700);
+  text-decoration: underline;
+}
+
+.facilitiesList {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.facilityBadge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--slate-100);
+.facilityItem {
+  background: #f1f5f9;
   color: var(--slate-700);
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
 }
 
 .footerActions {
-  padding: 16px 24px;
+  display: flex;
+  gap: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--border-subtle);
-  background: var(--slate-50);
-  display: flex;
-  gap: 12px;
-}
-
-.webBtn {
-  flex: 1;
-  background: #ffffff;
-  border: 1px solid var(--border-subtle);
-  color: var(--slate-700);
-  padding: 12px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-}
-
-.webBtn:hover {
-  background: var(--slate-100);
+  flex-wrap: wrap;
 }
 
 .kakaoNavBtn {
-  flex: 1.5;
+  flex: 1;
+  min-width: 200px;
   background: #fee500;
   color: #191919;
-  padding: 12px;
+  padding: 10px 16px;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease;
+  gap: 6px;
 }
 
 .kakaoNavBtn:hover {
   background: #fada0a;
+}
+
+.websiteBtn {
+  background: #f1f5f9;
+  color: var(--slate-700);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.websiteBtn:hover {
+  background: #e2e8f0;
+}
+
+/* Tab 3: Compliance & Master Plan Indicators */
+.complianceAlert {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  color: #15803d;
+  line-height: 1.5;
+}
+
+.complianceAlert strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.complianceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.complianceCard {
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compLabel {
+  font-size: 12px;
+  color: var(--slate-500);
+  font-weight: 500;
+}
+
+.compValue {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.compDesc {
+  font-size: 11px;
+  color: var(--slate-500);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.areaInfoBox {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--slate-700);
 }

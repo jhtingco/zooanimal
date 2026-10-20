@@ -82,8 +82,15 @@ export default function HomePage() {
         const query = searchQuery.toLowerCase().trim();
         const matchesName = zoo.name.toLowerCase().includes(query);
         const matchesAddress = zoo.address.toLowerCase().includes(query);
-        const matchesAnimals = zoo.keyAnimals.some((a) =>
+        const matchesKeyAnimals = zoo.keyAnimals.some((a) =>
           a.toLowerCase().includes(query)
+        );
+        const matchesAllAnimals = (zoo.allAnimals || []).some(
+          (a) =>
+            a.name.toLowerCase().includes(query) ||
+            a.scientificName?.toLowerCase().includes(query) ||
+            a.englishName?.toLowerCase().includes(query) ||
+            a.zone?.toLowerCase().includes(query)
         );
         const matchesTags = zoo.tags.some((t) =>
           t.toLowerCase().includes(query)
@@ -93,7 +100,8 @@ export default function HomePage() {
         if (
           !matchesName &&
           !matchesAddress &&
-          !matchesAnimals &&
+          !matchesKeyAnimals &&
+          !matchesAllAnimals &&
           !matchesTags &&
           !matchesCategory
         ) {
@@ -117,13 +125,21 @@ export default function HomePage() {
     sortBy,
   ]);
 
-  // When selectedZoo changes from map, auto scroll to that card in list
+  // When selectedZoo changes from card or map, sync selection & view
   const handleSelectZoo = (zoo: Zoo | null) => {
     setSelectedZoo(zoo);
     if (zoo) {
       const cardEl = document.getElementById(`zoo-card-${zoo.id}`);
       if (cardEl) {
         cardEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      // If on mobile/tablet view (< 900px), scroll map into view
+      if (typeof window !== "undefined" && window.innerWidth < 900) {
+        const mapEl = document.getElementById("map-section-wrapper");
+        if (mapEl) {
+          mapEl.scrollIntoView({ behavior: "smooth" });
+        }
       }
     }
   };
